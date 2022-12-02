@@ -1,0 +1,123 @@
+variable "ConnectionStrings:Database" {
+    value "#{Project.Connection.String}" {}
+}
+
+variable "Project.Connection.String" {
+    value "Server=(localdb)\\MSSQLLocalDB;Integrated Security=true;Database=#{Project.Database.Name}" {}
+}
+
+variable "Project.Database.ApprovalRequired" {
+    value "#{Octopus.Action[Auto-Approve Database Delta Script].Output.ApprovalRequired}" {}
+}
+
+variable "Project.Database.Name" {
+    value "Trident_#{Retail.Tenant.ShortName}" {
+        description = ""
+    }
+
+    value "Trident_#{Octopus.Environment.Name}_#{Retail.Tenant.ShortName}" {
+        description = ""
+        environment = ["dev", "qa"]
+    }
+
+    value "Trident_Staging_#{Retail.Tenant.ShortName}" {
+        description = ""
+        environment = ["stage", "staging-blue", "staging-green"]
+    }
+}
+
+variable "Project.Database.Report.Path" {
+    value "C:\\DatabaseReports\\#{Octopus.Environment.Name}#{Retail.Tenant.ShortName}" {}
+
+    value "C:\\DatabaseReports\\Production\\#{Retail.Tenant.ShortName}" {
+        description = ""
+        environment = ["production-blue", "production-green"]
+    }
+
+    value "C:\\DatabaseReports\\Staging\\#{Retail.Tenant.ShortName}" {
+        description = ""
+        environment = ["staging-blue", "staging-green"]
+    }
+}
+
+variable "Project.Database.RunOnDeploy" {
+    value "#{Octopus.Action[Calculate Deployment Mode].Output.RunOnDeploy}" {}
+}
+
+variable "Project.Database.Server.Name" {
+    value "Trident_Dev" {
+        environment = ["dev"]
+    }
+
+    value "Trident_QA" {
+        environment = ["qa"]
+    }
+
+    value "Trident_Stage" {
+        environment = ["stage"]
+    }
+
+    value "Trident_Prod" {
+        environment = ["prod"]
+    }
+}
+
+variable "Project.Database.User.Name" {
+    value "Trident_User_Dev" {
+        environment = ["dev"]
+    }
+
+    value "Trident_User_QA" {
+        environment = ["qa"]
+    }
+
+    value "Trident_User_Stage" {
+        environment = ["stage"]
+    }
+
+    value "Trident_User_Prod" {
+        environment = ["prod"]
+    }
+}
+
+variable "Project.Loadbalancer.HostToUpdate" {
+    value "#{Project.Tenant.Loadbalancer.HostName}" {
+        environment = ["staging-blue", "staging-green", "production-blue", "production-green"]
+        process = ["runbook/update-load-balancer"]
+
+        prompt {
+            description = ""
+            display_settings = {
+                Octopus.ControlType = "SingleLineText"
+            }
+            label = ""
+        }
+    }
+}
+
+variable "Project.Loadbalancer.Percent" {
+    value "10" {
+        environment = ["staging-blue", "staging-green", "production-blue", "production-green"]
+        process = ["deployment-process", "runbook/update-load-balancer"]
+
+        prompt {
+            description = ""
+            label = ""
+        }
+    }
+}
+
+variable "Project.Loadbalancer.WaitInMinutes" {
+    value "10" {
+        environment = ["staging-blue", "staging-green", "production-blue", "production-green"]
+        process = ["deployment-process", "runbook/update-load-balancer"]
+
+        prompt {
+            description = ""
+            display_settings = {
+                Octopus.ControlType = "SingleLineText"
+            }
+            label = ""
+        }
+    }
+}
